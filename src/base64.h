@@ -22,14 +22,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define BASE64_OCTET_ARRAY_SIZE 3
-#define BASE64_SEXTET_ARRAY_SIZE 4
-
-bool base64_valid_char(int);
-
-void base64_encode_step(const void *, size_t, char *, bool);
-size_t base64_decode_step(const char *, size_t, void *);
-
 char *base64_encode(const void *, size_t, bool);
 void *base64_decode(const char *, size_t *, bool);
 

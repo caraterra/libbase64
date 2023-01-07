@@ -21,8 +21,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "base64.h"
 
+#define BASE64_OCTET_ARRAY_SIZE 3
+#define BASE64_SEXTET_ARRAY_SIZE 4
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 const char ENCODE_TABLE[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -40,19 +43,18 @@ bool base64_valid_char(int c)
 	if (isalnum(c) || (c == '+' || c == '/' || c == '=')) {
 		return true;
 	}
+
 	return false;
 }
 
 void base64_encode_step(const void *src, size_t src_size, char *dest, bool pad)
 {
 	char pad_char = (pad) ? '=' : '\0';
-
 	uint32_t octet_triad = 0;
 	const unsigned char *src_arr = src;
 	octet_triad |= ((0 < src_size) ? src_arr[0] : 0) << 16;
 	octet_triad |= ((1 < src_size) ? src_arr[1] : 0) << 8;
 	octet_triad |= (2 < src_size) ? src_arr[2] : 0;
-
 	dest[0] = (src_size > 0) ? ENCODE_TABLE[(octet_triad & (0x3F << 18)) >> 18] : pad_char;
 	dest[1] = (src_size > 0) ? ENCODE_TABLE[(octet_triad & (0x3F << 12)) >> 12] : pad_char;
 	dest[2] = (src_size > 1) ? ENCODE_TABLE[(octet_triad & (0x3F << 6)) >> 6] : pad_char;
@@ -62,18 +64,15 @@ void base64_encode_step(const void *src, size_t src_size, char *dest, bool pad)
 size_t base64_decode_step(const char *src, size_t src_size, void *dest)
 {
 	size_t dest_size = 0;
-
 	uint32_t sextet_tetrad = 0;
 	sextet_tetrad |= ((0 < src_size) ? DECODE_TABLE[(uint8_t)src[dest_size]] : 0) << 18;
 	sextet_tetrad |= ((1 < src_size && src[1] != '=') ? DECODE_TABLE[(uint8_t)src[++dest_size]] : 0) << 12;
 	sextet_tetrad |= ((2 < src_size && src[2] != '=') ? DECODE_TABLE[(uint8_t)src[++dest_size]] : 0) << 6;
 	sextet_tetrad |= ((3 < src_size && src[3] != '=') ? DECODE_TABLE[(uint8_t)src[++dest_size]] : 0);
-
 	unsigned char *dest_arr = dest;
 	dest_arr[0] = (sextet_tetrad & (0xFF << 16)) >> 16;
 	dest_arr[1] = (sextet_tetrad & (0xFF << 8)) >> 8;
 	dest_arr[2] = sextet_tetrad & 0xFF;
-
 	return dest_size;
 }
 
@@ -84,11 +83,9 @@ char *base64_encode(const void *src, size_t src_size, bool pad)
 	}
 
 	const unsigned char *src_str = src;
-
 	const size_t dest_str_size = 4 * ((src_size + 2) / 3) + 1;
 	char *const dest_str = malloc(dest_str_size);
 	dest_str[0] = 0;
-
 	char buf[BASE64_SEXTET_ARRAY_SIZE];
 
 	for (size_t i = 0; i < src_size; i += BASE64_OCTET_ARRAY_SIZE) {
@@ -108,9 +105,9 @@ void *base64_decode(const char *src, size_t *dest_size, bool strict)
 	size_t dest_size_tmp = 0;
 	size_t src_size = strlen(src);
 	char *dest = malloc((src_size * BASE64_OCTET_ARRAY_SIZE) / BASE64_SEXTET_ARRAY_SIZE);
-
 	char src_buf[BASE64_SEXTET_ARRAY_SIZE];
 	size_t src_buf_size = 0;
+
 	for (size_t i = 0; i < src_size; ++i) {
 		if (base64_valid_char(src[i])) {
 			src_buf[src_buf_size] = src[i];
