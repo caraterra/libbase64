@@ -69,6 +69,10 @@ static int8_t *build_decode_table(const char *alphabet)
 	size_t table_size = max_char - min_char + 1;
 	int8_t *table = malloc(table_size);
 
+	if (table == NULL) {
+		return NULL;
+	}
+
 	for (size_t i = 0; i < table_size; ++i) {
 		table[i] = -1;
 	}
@@ -136,6 +140,11 @@ char *base64_encode_standard(const void *src, size_t src_size, const struct base
 
 	const size_t dest_str_size = BASE64_SEXTET_ARRAY_SIZE * ((src_size + 2) / BASE64_OCTET_ARRAY_SIZE) + 1;
 	char *const dest_str = calloc(dest_str_size, sizeof(char));
+
+	if (dest_str == NULL) {
+		return NULL;
+	}
+
 	char buf[BASE64_SEXTET_ARRAY_SIZE];
 
 	for (size_t i = 0; i < src_size; i += BASE64_OCTET_ARRAY_SIZE) {
@@ -155,10 +164,20 @@ void *base64_decode_standard(const char *src, size_t *dest_size, const struct ba
 	size_t dest_size_tmp = 0;
 	size_t src_size = strlen(src);
 	char *dest = malloc((src_size * BASE64_OCTET_ARRAY_SIZE) / BASE64_SEXTET_ARRAY_SIZE);
+
+	if (dest == NULL) {
+		return NULL;
+	}
+
 	char src_buf[BASE64_SEXTET_ARRAY_SIZE];
 	size_t src_buf_size = 0;
 
 	int8_t *decode_table = build_decode_table(standard.alphabet);
+
+	if (decode_table == NULL) {
+		free(dest);
+		return NULL;
+	}
 
 	for (size_t i = 0; i < src_size; ++i) {
 		if (base64_valid_char(src[i], decode_table)) {
