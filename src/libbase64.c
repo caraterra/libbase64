@@ -89,9 +89,10 @@ static void base64_encode_step(const void *src, size_t src_size, char *dest, con
 {
 	uint32_t octet_triad = 0;
 	const unsigned char *src_arr = src;
-	octet_triad |= ((0 < src_size) ? src_arr[0] : 0) << 16;
-	octet_triad |= ((1 < src_size) ? src_arr[1] : 0) << 8;
-	octet_triad |= (2 < src_size) ? src_arr[2] : 0;
+
+	octet_triad |= src_arr[0] << 16;
+	octet_triad |= src_arr[1] << 8;
+	octet_triad |= src_arr[2];
 
 	/* Mask four sextets out of the three-byte number and use them to index into
 	 * the encoding table, producing an encoded string of length four.
@@ -123,6 +124,7 @@ static size_t base64_decode_step(const char *src, size_t src_size, void *dest, c
 	dest_arr[0] = (sextet_tetrad & (0xFF << 16)) >> 16;
 	dest_arr[1] = (sextet_tetrad & (0xFF << 8)) >> 8;
 	dest_arr[2] = sextet_tetrad & 0xFF;
+
 	return dest_size;
 }
 
