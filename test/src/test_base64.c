@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <base64.h>
 #include <unity.h>
 #include <string.h>
@@ -12,7 +13,8 @@
 
 #define TEST_ASSERT_BASE64_DECODE_STRING(input, expected) do { \
 		actual = base64_decode(input, &actual_size); \
-		TEST_ASSERT_EQUAL_STRING(expected, actual); \
+		TEST_ASSERT_EQUAL_UINT64(strlen(expected), actual_size); \
+		TEST_ASSERT_EQUAL_MEMORY(expected, actual, actual_size); \
 		free(actual); \
 	} while (0)
 
@@ -29,8 +31,8 @@
 			perror(__FILE__); \
 			exit(1); \
 		} \
-		memset(&input, 0x0, STRING_MAX_SIZE); \
-		memset(&expected, 0x0, STRING_MAX_SIZE); \
+		memset(input, 0x0, STRING_MAX_SIZE); \
+		memset(expected, 0x0, STRING_MAX_SIZE); \
 		input_size = fread(input, 1, STRING_MAX_SIZE, input_file); \
 		fread(expected, 1, STRING_MAX_SIZE, expected_file); \
 		fclose(input_file); \
@@ -53,8 +55,8 @@
 			perror(__FILE__); \
 			exit(1); \
 		} \
-		memset(&input, 0x0, STRING_MAX_SIZE); \
-		memset(&expected, 0x0, STRING_MAX_SIZE); \
+		memset(input, 0x0, STRING_MAX_SIZE); \
+		memset(expected, 0x0, STRING_MAX_SIZE); \
 		fread(input, 1, STRING_MAX_SIZE, input_file); \
 		expected_size = fread(expected, 1, STRING_MAX_SIZE, expected_file); \
 		fclose(input_file); \

@@ -58,15 +58,7 @@ static int8_t *build_decode_table(const char *alphabet)
 		return NULL;
 	}
 
-	unsigned char min_char = alphabet[0];
-	unsigned char max_char = alphabet[0];
-
-	for (size_t i = 1; i < strlen(alphabet); ++i) {
-		min_char = (alphabet[i] < min_char) ? alphabet[i] : min_char;
-		max_char = (alphabet[i] > max_char) ? alphabet[i] : max_char;
-	}
-
-	size_t table_size = max_char - min_char + 1;
+	size_t table_size = 128;
 	int8_t *table = malloc(table_size);
 
 	if (table == NULL) {
@@ -163,7 +155,7 @@ void *base64_decode_standard(const char *src, size_t *dest_size, const struct ba
 
 	size_t dest_size_tmp = 0;
 	size_t src_size = strlen(src);
-	char *dest = malloc((src_size * BASE64_OCTET_ARRAY_SIZE) / BASE64_SEXTET_ARRAY_SIZE);
+	char *dest = malloc(((src_size * BASE64_SEXTET_ARRAY_SIZE) / BASE64_OCTET_ARRAY_SIZE) + 1);
 
 	if (dest == NULL) {
 		return NULL;
